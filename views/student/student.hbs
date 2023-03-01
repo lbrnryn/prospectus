@@ -1,0 +1,45 @@
+<div class="table-responsive">
+    <table class="table table-sm small">
+        <thead>
+            <tr>
+                <th class="text-nowrap">Course Code</th>
+                <th>Course</th>
+                <th>Affectivity</th>
+                <th>CMO No.</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td class="text-uppercase">{{student.course.abbreviation}}</td>
+                <td class="text-capitalize text-nowrap">{{student.course.name}}</td>
+                <td class="text-nowrap">AY2018-2019</td>
+                <td class="text-nowrap">#025, Series 2015</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<br>
+
+<div class="table-responsive">
+    <table class="table table-sm small">
+        <thead>
+            <tr>
+                <th>ID No.</th>
+                <th>Name</th>
+                <th>Campus</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td class="text-uppercase">{{student.studentId}}</td>
+                <td class="text-capitalize">{{student.name}}</td>
+                <td>Cainta</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<br>
+
+{{> bscs}}

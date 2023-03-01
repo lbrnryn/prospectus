@@ -1,0 +1,83 @@
+<h1>Admin Dashboard</h1>
+
+<br>
+
+<!-- Button trigger modal -->
+<button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addStudentBtn">
+  <i class="bi bi-person-plus-fill"></i>
+</button>
+
+<!-- Modal -->
+<div class="modal fade" id="addStudentBtn" tabindex="-1" aria-labelledby="addStudentBtnLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-body">
+        <form action="/register" method="post" class="small">
+            <div class="row">
+                <div class="col">
+                    <label for="firstname">Firstname</label>
+                    <input type="text" class="form-control form-control-sm" id="firstname" name="firstname">
+                </div>
+                <div class="col">
+                    <label for="lastname">Lastname</label>
+                    <input type="text" class="form-control form-control-sm" id="lastname" name="lastname">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <label for="studentId">Student ID</label>
+                    <input type="text" class="form-control form-control-sm" id="studentId" class="studentId">
+                </div>
+                <div class="col">
+                    <label for="">Course</label>
+                    <select class="form-select form-select-sm" name="course">
+                        <option value="" selected>Select Course...</option>
+                        <option value="act">ACT</option>
+                        <option value="bscs">BSCS</option>
+                        <option value="bsit">BSIT</option>
+                        <option value="bsis">BSIS</option>
+                    </select>
+                </div>
+                <div class="col">
+                    <label for="">Campus</label>
+                    <select class="form-select form-select-sm" name="campus">
+                        <option value="" selected>Select Campus...</option>
+                        <option value="cainta">Cainta</option>
+                        <option value="antipolo">Antipolo</option>
+                        <option value="binangonan">Binangonan</option>
+                        <option value="cogeo">Cogeo</option>
+                        <option value="san mateo">San Mateo</option>
+                        <option value="sumulong">Sumulong</option>
+                        <option value="taytay">Taytay</option>
+                    </select>
+                </div>
+            </div>
+            <div class="d-block mt-3">
+                <button class="btn btn-sm btn-primary">Submit</button>
+            </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+{{!-- <select class="form-select text-capitalize mt-5">
+    <option value="" selected>Choose student</option>
+    {{#each students}}
+        <option value="{{this._id}}">{{this.firstname}} {{this.lastname}}</option>
+    {{/each}}
+</select> --}}
+
+<input type="text" class="form-control form-control-sm mt-5 mb-3" id="searchBar" placeholder="Search student...">
+
+{{!-- <ul class="mt-3 list-group" id="studentList">
+    {{#each students}}
+        <li class="list-group-item">{{this.firstname}} {{this.lastname}}</li>
+    {{/each}}
+</ul> --}}
+
+<div class="d-grid gap-2" id="studentList">
+    {{#each students}}
+        <a href="/student/{{this._id}}" class="text-decoration-none text-capitalize">{{this.firstname}} {{this.lastname}}</a>
+    {{/each}}
+</div>

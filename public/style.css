@@ -1,0 +1,14 @@
+/* #studentList > li {
+    display: none;
+    cursor: pointer;
+} */
+
+#studentList > a {
+    display: none;
+    color: "black";
+}
+
+#studentList > a:hover{
+    background-color: blue;
+    color: "white";
+}
