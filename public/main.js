@@ -30,3 +30,20 @@ if (location.pathname === "/dashboard") {
     //     })
     // })
 }
+
+const subjectBtns = document.querySelectorAll(".subjectBtn");
+const forms = document.querySelectorAll(".subjectBtn + form");
+// console.log(forms)
+
+subjectBtns.forEach(subjectBtn => {
+    subjectBtn.addEventListener("click", (e) => {
+        // console.log(e.target.nextElementSibling)
+        e.target.nextElementSibling.style.display = "flex";
+        forms.forEach(form => {
+            // console.log(form.previousElementSibling.innerText)
+            if (form.previousElementSibling.innerText !== e.target.innerText) {
+                form.style.display = "none";
+            }
+        })
+    });
+});

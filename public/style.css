@@ -3,6 +3,10 @@
     cursor: pointer;
 } */
 
+body {
+    background-color: #10111e;
+}
+
 #studentList > a {
     display: none;
     color: "black";
@@ -12,3 +16,10 @@
     background-color: blue;
     color: "white";
 }
+
+/* select forms after the .subjectBtn */
+.subjectBtn + form {
+    display: none;
+}
+
+.border-radius-0 { border-radius: 0; }

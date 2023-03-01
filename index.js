@@ -12,8 +12,9 @@ const path = require("path");
 
 // Models
 const Subject = require("./models/Subject");
-const Course = require("./models/Course");
+// const Course = require("./models/Course");
 const User = require("./models/User");
+const Grade = require("./models/Grade");
 
 const app = express();
 
@@ -77,31 +78,41 @@ app.get("/dashboard", async  (req, res) => {
 
 app.get("/student/:id", async (req, res) => {
     const student = await User.findById(req.params.id).lean();
-    student.isBSCS = student.course === "bscs" ? true: false;
-    res.render("admin/student", { student });
+    // student.isBSCS = student.course === "bscs" ? true: false;
+    const subjects = await Subject.find({ course: student.course }).lean();
+    // console.log(subjects)
+    res.render("admin/student", { student, subjects });
 });
 
-// POST - /course - Add a course
-app.post("/course", async (req, res) => {
+app.post("/grade/subject", async (req, res) => {
     try {
-        const course = await Course.create(req.body);
-        res.json(course);
+        const grade = await Grade.create(req.body);
+        res.json(grade)
     } catch(err) { console.log(err) }
 });
 
+// POST - /course - Add a course
+// app.post("/course", async (req, res) => {
+//     try {
+//         const course = await Course.create(req.body);
+//         res.json(course);
+//     } catch(err) { console.log(err) }
+// });
+
 // GET - /api/courses - Get all courses in json
-app.get("/api/courses", async (req, res) => {
-    try {
-        const courses = await Course.find();
-        res.json(courses);
-    } catch (err) { console.log(err) }
-});
+// app.get("/api/courses", async (req, res) => {
+//     try {
+//         const courses = await Course.find();
+//         res.json(courses);
+//     } catch (err) { console.log(err) }
+// });
 
 // POST - /subject - Add a subject
 app.post("/subject", async (req, res) => {
     try {
         const subject = await Subject.create(req.body);
-        res.json(subject);
+        // res.json(subject);
+        res.status(201).redirect("/dashboard");
     } catch(err) { console.log(err) }
 });
 
@@ -117,12 +128,6 @@ app.get("/api/subjects", async (req, res) => {
         // console.log(req.query)
         const subjects = await Subject.find(req.query).populate("course");
         res.json(subjects)
-    } catch (err) { console.log(err) }
-});
-
-app.post("/grade", async (req, res) => {
-    try {
-
     } catch (err) { console.log(err) }
 });
 

@@ -1,9 +1,29 @@
-{{#if student.isACT}}
+<h3 class="text-capitalize small text-white">{{student.firstname}} {{student.lastname}} | <span class="text-uppercase">{{student.course}}</span></h3>
+
+<br>
+
+<div class="d-flex flex-wrap gap-4">
+    {{#each subjects}}
+        <div class="d-flex gap-2">
+            {{!-- <button class="btn btn-sm btn-primary">{{this.code}}|{{this.course}}</button> --}}
+            <button class="btn btn-sm btn-primary text-uppercase subjectBtn">{{this.code}}</button>
+            <form action="/grade/subject/{{this._id}}">
+                <input type="text" class="bg-transparent border-0 border-bottom text-white" style="width: 3rem;">
+                <button type="submit" class="border-0 bg-transparent text-white"><i class="bi bi-caret-right-fill"></i></button>
+            </form>
+        </div>
+    {{/each}}
+</div>
+{{!-- {{#if student.isACT}}
 
 {{else if student.isBSCS}}
-    {{> bscs student}}
+    <div class="d-flex-flex-wrap">
+        {{#each subjects}}
+            <button class="badge bg-primary border-0 text-uppercase">{{this.code}}</button>
+        {{/each}}
+    </div>
 {{else if student.isBSIT}}
 
 {{else if student.isBSIS}}
 
-{{/if}}
+{{/if}} --}}
