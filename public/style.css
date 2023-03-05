@@ -3,9 +3,9 @@
     cursor: pointer;
 } */
 
-body {
+/* body {
     background-color: #10111e;
-}
+} */
 
 #studentList > a {
     display: none;

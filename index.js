@@ -40,20 +40,10 @@ app.post("/login", (req, res) => {
 
 app.post("/register", async (req, res) => {
     try {
-        // res.json(req.body)
-        // const { username, password, name, role, studentId, course } = req.body
         const { firstname, lastname, studentId, course, campus } = req.body;
-        // const subjects = await Subject.find({ course: req.body.course  });
-        // res.json(subjects)
-        // const subjectIds = subjects.map(subject => subject._id);
-        // res.json(subjectIds)
-        // const user = await User.create(req.body);
         const user = await User.create({
             firstname, lastname, studentId, course, campus
-            // username, password, name, role, studentId, course, campus
-            // username, password, name, role, studentId, course, subjects: subjectIds
         });
-        // res.status(201).json(user);
         res.status(201).redirect("/dashboard");
     } catch(err) { console.log(err) }
 });
@@ -68,7 +58,8 @@ app.get("/api/users", async (req, res) => {
 
 // GET - /dashboard - Dashboard Page (Admin/Student)
 app.get("/dashboard", async  (req, res) => {
-    const students = await User.find().lean();
+    const students = await User.find({ role: "student" }).lean();
+    // console.log(students)
 
     res.render("admin/dashboard", {
         title: "Admin - Dashboard",
@@ -81,7 +72,202 @@ app.get("/student/:id", async (req, res) => {
     // student.isBSCS = student.course === "bscs" ? true: false;
     const subjects = await Subject.find({ course: student.course }).lean();
     // console.log(subjects)
-    res.render("admin/student", { student, subjects });
+    res.render("admin/student", { 
+        student, 
+        subjects,
+        helpers: {
+            firstYearfirstTrime(subjects) {
+                const filteredSubjects = subjects.filter(subject => subject.year === "1st" && subject.trimester === "1st");
+
+                const mapSubjects = filteredSubjects.map(subject => {
+                    return `
+                    <div class="col-6">
+                        <form action="/grade/subject/${subject._id}" class="d-flex justify-content-between align-items-center">
+                            <label for="${subject.code}" class="text-uppercase">${subject.code}</label>
+                            <div>
+                                <input type="text" class="border-0 border-bottom" id="${subject.code}" style="width: 2rem;">
+                                <button type="submit" class="btn"><i class="bi bi-caret-right-fill"></i></button>
+                            </div>
+                        </form>
+                    </div>
+                    `
+                });
+                // console.log(mapSubjects.join(""));
+                return mapSubjects.join("")
+            },
+            firstYearsecondTrime(subjects) {
+                const filteredSubjects = subjects.filter(subject => subject.year === "1st" && subject.trimester === "2nd");
+
+                const mapSubjects = filteredSubjects.map(subject => {
+                    return `
+                    <div class="col-6">
+                        <form action="/grade/subject/${subject._id}" class="d-flex justify-content-between align-items-center">
+                            <label for="" class="text-uppercase">${subject.code}</label>
+                            <div>
+                                <input type="text" class="border-0 border-bottom" style="width: 2rem;">
+                                <button type="submit" class="btn"><i class="bi bi-caret-right-fill"></i></button>
+                            </div>
+                        </form>
+                    </div>
+                    `
+                });
+                // console.log(mapSubjects.join(""));
+                return mapSubjects.join("")
+            },
+            firstYearthirdTrime(subjects) {
+                const filteredSubjects = subjects.filter(subject => subject.year === "1st" && subject.trimester === "3rd");
+
+                const mapSubjects = filteredSubjects.map(subject => {
+                    return `
+                    <div class="col-6">
+                        <form action="/grade/subject/${subject._id}" class="d-flex justify-content-between align-items-center">
+                            <label for="" class="text-uppercase">${subject.code}</label>
+                            <div>
+                                <input type="text" class="border-0 border-bottom" style="width: 2rem;">
+                                <button type="submit" class="btn"><i class="bi bi-caret-right-fill"></i></button>
+                            </div>
+                        </form>
+                    </div>
+                    `
+                });
+                // console.log(mapSubjects.join(""));
+                return mapSubjects.join("")
+            },
+            secondYearfirstTrime(subjects) {
+                const filteredSubjects = subjects.filter(subject => subject.year === "2nd" && subject.trimester === "1st");
+
+                const mapSubjects = filteredSubjects.map(subject => {
+                    return `
+                    <div class="col-6">
+                        <form action="/grade/subject/${subject._id}" class="d-flex justify-content-between align-items-center">
+                            <label for="" class="text-uppercase">${subject.code}</label>
+                            <div>
+                                <input type="text" class="border-0 border-bottom" style="width: 2rem;">
+                                <button type="submit" class="btn"><i class="bi bi-caret-right-fill"></i></button>
+                            </div>
+                        </form>
+                    </div>
+                    `
+                });
+                // console.log(mapSubjects.join(""));
+                return mapSubjects.join("")
+            },
+            secondYearsecondTrime(subjects) {
+                const filteredSubjects = subjects.filter(subject => subject.year === "2nd" && subject.trimester === "2nd");
+
+                const mapSubjects = filteredSubjects.map(subject => {
+                    return `
+                    <div class="col-6">
+                        <form action="/grade/subject/${subject._id}" class="d-flex justify-content-between align-items-center">
+                            <label for="" class="text-uppercase">${subject.code}</label>
+                            <div>
+                                <input type="text" class="border-0 border-bottom" style="width: 2rem;">
+                                <button type="submit" class="btn"><i class="bi bi-caret-right-fill"></i></button>
+                            </div>
+                        </form>
+                    </div>
+                    `
+                });
+                // console.log(mapSubjects.join(""));
+                return mapSubjects.join("")
+            },
+            secondYearthirdTrime(subjects) {
+                const filteredSubjects = subjects.filter(subject => subject.year === "2nd" && subject.trimester === "3rd");
+
+                const mapSubjects = filteredSubjects.map(subject => {
+                    return `
+                    <div class="col-6">
+                        <form action="/grade/subject/${subject._id}" class="d-flex justify-content-between align-items-center">
+                            <label for="" class="text-uppercase">${subject.code}</label>
+                            <div>
+                                <input type="text" class="border-0 border-bottom" style="width: 2rem;">
+                                <button type="submit" class="btn"><i class="bi bi-caret-right-fill"></i></button>
+                            </div>
+                        </form>
+                    </div>
+                    `
+                });
+                // console.log(mapSubjects.join(""));
+                return mapSubjects.join("")
+            },
+            thirdYearfirstTrime(subjects) {
+                const filteredSubjects = subjects.filter(subject => subject.year === "3rd" && subject.trimester === "1st");
+
+                const mapSubjects = filteredSubjects.map(subject => {
+                    return `
+                    <div class="col-6">
+                        <form action="/grade/subject/${subject._id}" class="d-flex justify-content-between align-items-center">
+                            <label for="" class="text-uppercase">${subject.code}</label>
+                            <div>
+                                <input type="text" class="border-0 border-bottom" style="width: 2rem;">
+                                <button type="submit" class="btn"><i class="bi bi-caret-right-fill"></i></button>
+                            </div>
+                        </form>
+                    </div>
+                    `
+                });
+                // console.log(mapSubjects.join(""));
+                return mapSubjects.join("")
+            },
+            thirdYearsecondTrime(subjects) {
+                const filteredSubjects = subjects.filter(subject => subject.year === "3rd" && subject.trimester === "2nd");
+
+                const mapSubjects = filteredSubjects.map(subject => {
+                    return `
+                    <div class="col-6">
+                        <form action="/grade/subject/${subject._id}" class="d-flex justify-content-between align-items-center">
+                            <label for="" class="text-uppercase">${subject.code}</label>
+                            <div>
+                                <input type="text" class="border-0 border-bottom" style="width: 2rem;">
+                                <button type="submit" class="btn"><i class="bi bi-caret-right-fill"></i></button>
+                            </div>
+                        </form>
+                    </div>
+                    `
+                });
+                // console.log(mapSubjects.join(""));
+                return mapSubjects.join("")
+            },
+            thirdYearthirdTrime(subjects) {
+                const filteredSubjects = subjects.filter(subject => subject.year === "3rd" && subject.trimester === "3rd");
+
+                const mapSubjects = filteredSubjects.map(subject => {
+                    return `
+                    <div class="col-6">
+                        <form action="/grade/subject/${subject._id}" class="d-flex justify-content-between align-items-center">
+                            <label for="" class="text-uppercase">${subject.code}</label>
+                            <div>
+                                <input type="text" class="border-0 border-bottom" style="width: 2rem;">
+                                <button type="submit" class="btn"><i class="bi bi-caret-right-fill"></i></button>
+                            </div>
+                        </form>
+                    </div>
+                    `
+                });
+                // console.log(mapSubjects.join(""));
+                return mapSubjects.join("")
+            },
+            fourthYearfirstTrime(subjects) {
+                const filteredSubjects = subjects.filter(subject => subject.year === "4th" && subject.trimester === "1st");
+
+                const mapSubjects = filteredSubjects.map(subject => {
+                    return `
+                    <div class="col-6">
+                        <form action="/grade/subject/${subject._id}" class="d-flex justify-content-between align-items-center">
+                            <label for="" class="text-uppercase">${subject.code}</label>
+                            <div>
+                                <input type="text" class="border-0 border-bottom" style="width: 2rem;">
+                                <button type="submit" class="btn"><i class="bi bi-caret-right-fill"></i></button>
+                            </div>
+                        </form>
+                    </div>
+                    `
+                });
+                // console.log(mapSubjects.join(""));
+                return mapSubjects.join("")
+            },
+        }
+     });
 });
 
 app.post("/grade/subject", async (req, res) => {
