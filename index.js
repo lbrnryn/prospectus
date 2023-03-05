@@ -2,6 +2,7 @@ const express = require("express");
 const { engine } = require("express-handlebars");
 const mongoose = require("mongoose");
 const path = require("path");
+const methodOverride = require("method-override");
 
 (async function main() {
     try {
@@ -26,6 +27,7 @@ app.set("views", "./views");
 app.set("json spaces", 2);
 app.use(express.static(path.join(__dirname, "public")));
 app.use("/student", express.static(path.join(__dirname, "public")));
+app.use(methodOverride("_method"));
 
 // GET - / - Home Route
 app.get("/", (req, res) => {
@@ -72,21 +74,44 @@ app.get("/student/:id", async (req, res) => {
     // student.isBSCS = student.course === "bscs" ? true: false;
     const subjects = await Subject.find({ course: student.course }).lean();
     // console.log(subjects)
+    const grades = await Grade.find().lean();
+    // console.log(grades)
+
+
     res.render("admin/student", { 
         student, 
         subjects,
         helpers: {
-            firstYearfirstTrime(subjects) {
+            firstYearfirstTrime(subjects, student) {
+                // console.log(student)
+                subjects.forEach((subject, index) => {
+                    // console.log(subject._id.toString())
+                    grades.forEach(grade => {
+                        if (subject._id.toString() === grade.subject.toString()) {
+                            // console.log(subject)
+                            subject.grade = grade.grade;
+                            subject.gradeID = grade._id;
+                        }
+                    })
+                });
+                // console.log(subjects)
+                // <!-- <input type="text" class="border-0 border-bottom" id="${subject.code}" style="width: 2rem;" name="grade" value="${subject.gradeDetail.grade ? subject.gradeDetail.grade: ""}" ${subject.gradeDetail.grade ? "disabled=true": ""}> -->
+
                 const filteredSubjects = subjects.filter(subject => subject.year === "1st" && subject.trimester === "1st");
 
                 const mapSubjects = filteredSubjects.map(subject => {
                     return `
                     <div class="col-6">
-                        <form action="/grade/subject/${subject._id}" class="d-flex justify-content-between align-items-center">
+                        <form action="/grade/subject/${subject._id}" class="d-flex justify-content-between align-items-center" method="post">
                             <label for="${subject.code}" class="text-uppercase">${subject.code}</label>
                             <div>
-                                <input type="text" class="border-0 border-bottom" id="${subject.code}" style="width: 2rem;">
-                                <button type="submit" class="btn"><i class="bi bi-caret-right-fill"></i></button>
+                                <input type="hidden" value="${student._id}" name="studentID">
+                                <input type="hidden" value="${subject.gradeID}" name="gradeID">
+                                <!-- <input type="text" class="border-0 border-bottom" id="${subject.code}" style="width: 2rem;" name="grade" value="${subject.grade ? subject.grade: ""}" ${subject.grade ? "disabled=true": ""}> -->
+                                <input type="text" class="border-0 border-bottom" id="${subject.code}" style="width: 2rem;" name="grade" value="${subject.grade ? subject.grade: ""}" disabled>
+                                <button type="button" class="btn border-0 p-0 editGradeBtn"><i class="bi bi-pencil-fill"></i></button>
+                                <button type="submit" class="btn border-0 p-0 d-none editGradeSubmitBtn"><i class="bi bi-caret-right-fill"></i></button>
+                                <button type="button" class="btn border-0 p-0 d-none editGradeCancelBtn"><i class="bi bi-x"></i></button>
                             </div>
                         </form>
                     </div>
@@ -101,11 +126,16 @@ app.get("/student/:id", async (req, res) => {
                 const mapSubjects = filteredSubjects.map(subject => {
                     return `
                     <div class="col-6">
-                        <form action="/grade/subject/${subject._id}" class="d-flex justify-content-between align-items-center">
-                            <label for="" class="text-uppercase">${subject.code}</label>
+                        <form action="/grade/subject/${subject._id}" class="d-flex justify-content-between align-items-center" method="post">
+                            <label for="${subject.code}" class="text-uppercase">${subject.code}</label>
                             <div>
-                                <input type="text" class="border-0 border-bottom" style="width: 2rem;">
-                                <button type="submit" class="btn"><i class="bi bi-caret-right-fill"></i></button>
+                                <input type="hidden" value="${student._id}" name="studentID">
+                                <input type="hidden" value="${subject.gradeID}" name="gradeID">
+                                <!-- <input type="text" class="border-0 border-bottom" id="${subject.code}" style="width: 2rem;" name="grade" value="${subject.grade ? subject.grade: ""}" ${subject.grade ? "disabled=true": ""}> -->
+                                <input type="text" class="border-0 border-bottom" id="${subject.code}" style="width: 2rem;" name="grade" value="${subject.grade ? subject.grade: ""}" disabled>
+                                <button type="button" class="btn border-0 p-0 editGradeBtn"><i class="bi bi-pencil-fill"></i></button>
+                                <button type="submit" class="btn border-0 p-0 d-none editGradeSubmitBtn"><i class="bi bi-caret-right-fill"></i></button>
+                                <button type="button" class="btn border-0 p-0 d-none editGradeCancelBtn"><i class="bi bi-x"></i></button>
                             </div>
                         </form>
                     </div>
@@ -120,11 +150,16 @@ app.get("/student/:id", async (req, res) => {
                 const mapSubjects = filteredSubjects.map(subject => {
                     return `
                     <div class="col-6">
-                        <form action="/grade/subject/${subject._id}" class="d-flex justify-content-between align-items-center">
-                            <label for="" class="text-uppercase">${subject.code}</label>
+                        <form action="/grade/subject/${subject._id}" class="d-flex justify-content-between align-items-center" method="post">
+                            <label for="${subject.code}" class="text-uppercase">${subject.code}</label>
                             <div>
-                                <input type="text" class="border-0 border-bottom" style="width: 2rem;">
-                                <button type="submit" class="btn"><i class="bi bi-caret-right-fill"></i></button>
+                                <input type="hidden" value="${student._id}" name="studentID">
+                                <input type="hidden" value="${subject.gradeID}" name="gradeID">
+                                <!-- <input type="text" class="border-0 border-bottom" id="${subject.code}" style="width: 2rem;" name="grade" value="${subject.grade ? subject.grade: ""}" ${subject.grade ? "disabled=true": ""}> -->
+                                <input type="text" class="border-0 border-bottom" id="${subject.code}" style="width: 2rem;" name="grade" value="${subject.grade ? subject.grade: ""}" disabled>
+                                <button type="button" class="btn border-0 p-0 editGradeBtn"><i class="bi bi-pencil-fill"></i></button>
+                                <button type="submit" class="btn border-0 p-0 d-none editGradeSubmitBtn"><i class="bi bi-caret-right-fill"></i></button>
+                                <button type="button" class="btn border-0 p-0 d-none editGradeCancelBtn"><i class="bi bi-x"></i></button>
                             </div>
                         </form>
                     </div>
@@ -139,11 +174,16 @@ app.get("/student/:id", async (req, res) => {
                 const mapSubjects = filteredSubjects.map(subject => {
                     return `
                     <div class="col-6">
-                        <form action="/grade/subject/${subject._id}" class="d-flex justify-content-between align-items-center">
-                            <label for="" class="text-uppercase">${subject.code}</label>
+                        <form action="/grade/subject/${subject._id}" class="d-flex justify-content-between align-items-center" method="post">
+                            <label for="${subject.code}" class="text-uppercase">${subject.code}</label>
                             <div>
-                                <input type="text" class="border-0 border-bottom" style="width: 2rem;">
-                                <button type="submit" class="btn"><i class="bi bi-caret-right-fill"></i></button>
+                                <input type="hidden" value="${student._id}" name="studentID">
+                                <input type="hidden" value="${subject.gradeID}" name="gradeID">
+                                <!-- <input type="text" class="border-0 border-bottom" id="${subject.code}" style="width: 2rem;" name="grade" value="${subject.grade ? subject.grade: ""}" ${subject.grade ? "disabled=true": ""}> -->
+                                <input type="text" class="border-0 border-bottom" id="${subject.code}" style="width: 2rem;" name="grade" value="${subject.grade ? subject.grade: ""}" disabled>
+                                <button type="button" class="btn border-0 p-0 editGradeBtn"><i class="bi bi-pencil-fill"></i></button>
+                                <button type="submit" class="btn border-0 p-0 d-none editGradeSubmitBtn"><i class="bi bi-caret-right-fill"></i></button>
+                                <button type="button" class="btn border-0 p-0 d-none editGradeCancelBtn"><i class="bi bi-x"></i></button>
                             </div>
                         </form>
                     </div>
@@ -158,11 +198,16 @@ app.get("/student/:id", async (req, res) => {
                 const mapSubjects = filteredSubjects.map(subject => {
                     return `
                     <div class="col-6">
-                        <form action="/grade/subject/${subject._id}" class="d-flex justify-content-between align-items-center">
-                            <label for="" class="text-uppercase">${subject.code}</label>
+                        <form action="/grade/subject/${subject._id}" class="d-flex justify-content-between align-items-center" method="post">
+                            <label for="${subject.code}" class="text-uppercase">${subject.code}</label>
                             <div>
-                                <input type="text" class="border-0 border-bottom" style="width: 2rem;">
-                                <button type="submit" class="btn"><i class="bi bi-caret-right-fill"></i></button>
+                                <input type="hidden" value="${student._id}" name="studentID">
+                                <input type="hidden" value="${subject.gradeID}" name="gradeID">
+                                <!-- <input type="text" class="border-0 border-bottom" id="${subject.code}" style="width: 2rem;" name="grade" value="${subject.grade ? subject.grade: ""}" ${subject.grade ? "disabled=true": ""}> -->
+                                <input type="text" class="border-0 border-bottom" id="${subject.code}" style="width: 2rem;" name="grade" value="${subject.grade ? subject.grade: ""}" disabled>
+                                <button type="button" class="btn border-0 p-0 editGradeBtn"><i class="bi bi-pencil-fill"></i></button>
+                                <button type="submit" class="btn border-0 p-0 d-none editGradeSubmitBtn"><i class="bi bi-caret-right-fill"></i></button>
+                                <button type="button" class="btn border-0 p-0 d-none editGradeCancelBtn"><i class="bi bi-x"></i></button>
                             </div>
                         </form>
                     </div>
@@ -177,11 +222,16 @@ app.get("/student/:id", async (req, res) => {
                 const mapSubjects = filteredSubjects.map(subject => {
                     return `
                     <div class="col-6">
-                        <form action="/grade/subject/${subject._id}" class="d-flex justify-content-between align-items-center">
-                            <label for="" class="text-uppercase">${subject.code}</label>
+                        <form action="/grade/subject/${subject._id}" class="d-flex justify-content-between align-items-center" method="post">
+                            <label for="${subject.code}" class="text-uppercase">${subject.code}</label>
                             <div>
-                                <input type="text" class="border-0 border-bottom" style="width: 2rem;">
-                                <button type="submit" class="btn"><i class="bi bi-caret-right-fill"></i></button>
+                                <input type="hidden" value="${student._id}" name="studentID">
+                                <input type="hidden" value="${subject.gradeID}" name="gradeID">
+                                <!-- <input type="text" class="border-0 border-bottom" id="${subject.code}" style="width: 2rem;" name="grade" value="${subject.grade ? subject.grade: ""}" ${subject.grade ? "disabled=true": ""}> -->
+                                <input type="text" class="border-0 border-bottom" id="${subject.code}" style="width: 2rem;" name="grade" value="${subject.grade ? subject.grade: ""}" disabled>
+                                <button type="button" class="btn border-0 p-0 editGradeBtn"><i class="bi bi-pencil-fill"></i></button>
+                                <button type="submit" class="btn border-0 p-0 d-none editGradeSubmitBtn"><i class="bi bi-caret-right-fill"></i></button>
+                                <button type="button" class="btn border-0 p-0 d-none editGradeCancelBtn"><i class="bi bi-x"></i></button>
                             </div>
                         </form>
                     </div>
@@ -196,11 +246,16 @@ app.get("/student/:id", async (req, res) => {
                 const mapSubjects = filteredSubjects.map(subject => {
                     return `
                     <div class="col-6">
-                        <form action="/grade/subject/${subject._id}" class="d-flex justify-content-between align-items-center">
-                            <label for="" class="text-uppercase">${subject.code}</label>
+                        <form action="/grade/subject/${subject._id}" class="d-flex justify-content-between align-items-center" method="post">
+                            <label for="${subject.code}" class="text-uppercase">${subject.code}</label>
                             <div>
-                                <input type="text" class="border-0 border-bottom" style="width: 2rem;">
-                                <button type="submit" class="btn"><i class="bi bi-caret-right-fill"></i></button>
+                                <input type="hidden" value="${student._id}" name="studentID">
+                                <input type="hidden" value="${subject.gradeID}" name="gradeID">
+                                <!-- <input type="text" class="border-0 border-bottom" id="${subject.code}" style="width: 2rem;" name="grade" value="${subject.grade ? subject.grade: ""}" ${subject.grade ? "disabled=true": ""}> -->
+                                <input type="text" class="border-0 border-bottom" id="${subject.code}" style="width: 2rem;" name="grade" value="${subject.grade ? subject.grade: ""}" disabled>
+                                <button type="button" class="btn border-0 p-0 editGradeBtn"><i class="bi bi-pencil-fill"></i></button>
+                                <button type="submit" class="btn border-0 p-0 d-none editGradeSubmitBtn"><i class="bi bi-caret-right-fill"></i></button>
+                                <button type="button" class="btn border-0 p-0 d-none editGradeCancelBtn"><i class="bi bi-x"></i></button>
                             </div>
                         </form>
                     </div>
@@ -215,11 +270,16 @@ app.get("/student/:id", async (req, res) => {
                 const mapSubjects = filteredSubjects.map(subject => {
                     return `
                     <div class="col-6">
-                        <form action="/grade/subject/${subject._id}" class="d-flex justify-content-between align-items-center">
-                            <label for="" class="text-uppercase">${subject.code}</label>
+                        <form action="/grade/subject/${subject._id}" class="d-flex justify-content-between align-items-center" method="post">
+                            <label for="${subject.code}" class="text-uppercase">${subject.code}</label>
                             <div>
-                                <input type="text" class="border-0 border-bottom" style="width: 2rem;">
-                                <button type="submit" class="btn"><i class="bi bi-caret-right-fill"></i></button>
+                                <input type="hidden" value="${student._id}" name="studentID">
+                                <input type="hidden" value="${subject.gradeID}" name="gradeID">
+                                <!-- <input type="text" class="border-0 border-bottom" id="${subject.code}" style="width: 2rem;" name="grade" value="${subject.grade ? subject.grade: ""}" ${subject.grade ? "disabled=true": ""}> -->
+                                <input type="text" class="border-0 border-bottom" id="${subject.code}" style="width: 2rem;" name="grade" value="${subject.grade ? subject.grade: ""}" disabled>
+                                <button type="button" class="btn border-0 p-0 editGradeBtn"><i class="bi bi-pencil-fill"></i></button>
+                                <button type="submit" class="btn border-0 p-0 d-none editGradeSubmitBtn"><i class="bi bi-caret-right-fill"></i></button>
+                                <button type="button" class="btn border-0 p-0 d-none editGradeCancelBtn"><i class="bi bi-x"></i></button>
                             </div>
                         </form>
                     </div>
@@ -234,11 +294,16 @@ app.get("/student/:id", async (req, res) => {
                 const mapSubjects = filteredSubjects.map(subject => {
                     return `
                     <div class="col-6">
-                        <form action="/grade/subject/${subject._id}" class="d-flex justify-content-between align-items-center">
-                            <label for="" class="text-uppercase">${subject.code}</label>
+                        <form action="/grade/subject/${subject._id}" class="d-flex justify-content-between align-items-center" method="post">
+                            <label for="${subject.code}" class="text-uppercase">${subject.code}</label>
                             <div>
-                                <input type="text" class="border-0 border-bottom" style="width: 2rem;">
-                                <button type="submit" class="btn"><i class="bi bi-caret-right-fill"></i></button>
+                                <input type="hidden" value="${student._id}" name="studentID">
+                                <input type="hidden" value="${subject.gradeID}" name="gradeID">
+                                <!-- <input type="text" class="border-0 border-bottom" id="${subject.code}" style="width: 2rem;" name="grade" value="${subject.grade ? subject.grade: ""}" ${subject.grade ? "disabled=true": ""}> -->
+                                <input type="text" class="border-0 border-bottom" id="${subject.code}" style="width: 2rem;" name="grade" value="${subject.grade ? subject.grade: ""}" disabled>
+                                <button type="button" class="btn border-0 p-0 editGradeBtn"><i class="bi bi-pencil-fill"></i></button>
+                                <button type="submit" class="btn border-0 p-0 d-none editGradeSubmitBtn"><i class="bi bi-caret-right-fill"></i></button>
+                                <button type="button" class="btn border-0 p-0 d-none editGradeCancelBtn"><i class="bi bi-x"></i></button>
                             </div>
                         </form>
                     </div>
@@ -253,11 +318,16 @@ app.get("/student/:id", async (req, res) => {
                 const mapSubjects = filteredSubjects.map(subject => {
                     return `
                     <div class="col-6">
-                        <form action="/grade/subject/${subject._id}" class="d-flex justify-content-between align-items-center">
-                            <label for="" class="text-uppercase">${subject.code}</label>
+                        <form action="/grade/subject/${subject._id}" class="d-flex justify-content-between align-items-center" method="post">
+                            <label for="${subject.code}" class="text-uppercase">${subject.code}</label>
                             <div>
-                                <input type="text" class="border-0 border-bottom" style="width: 2rem;">
-                                <button type="submit" class="btn"><i class="bi bi-caret-right-fill"></i></button>
+                                <input type="hidden" value="${student._id}" name="studentID">
+                                <input type="hidden" value="${subject.gradeID}" name="gradeID">
+                                <!-- <input type="text" class="border-0 border-bottom" id="${subject.code}" style="width: 2rem;" name="grade" value="${subject.grade ? subject.grade: ""}" ${subject.grade ? "disabled=true": ""}> -->
+                                <input type="text" class="border-0 border-bottom" id="${subject.code}" style="width: 2rem;" name="grade" value="${subject.grade ? subject.grade: ""}" disabled>
+                                <button type="button" class="btn border-0 p-0 editGradeBtn"><i class="bi bi-pencil-fill"></i></button>
+                                <button type="submit" class="btn border-0 p-0 d-none editGradeSubmitBtn"><i class="bi bi-caret-right-fill"></i></button>
+                                <button type="button" class="btn border-0 p-0 d-none editGradeCancelBtn"><i class="bi bi-x"></i></button>
                             </div>
                         </form>
                     </div>
@@ -270,10 +340,23 @@ app.get("/student/:id", async (req, res) => {
      });
 });
 
-app.post("/grade/subject", async (req, res) => {
+app.post("/grade/subject/:id", async (req, res) => {
     try {
-        const grade = await Grade.create(req.body);
-        res.json(grade)
+        const grade = await Grade.create({
+            subject: req.params.id,
+            student: req.body.studentID,
+            grade: req.body.grade
+        });
+        // res.json(grade);
+        res.status(201).redirect(`/student/64045fae22693e42fe681205`);
+    } catch(err) { console.log(err) }
+});
+
+app.put("/grade/subject/:id", async (req, res) => {
+    try {
+        const updateGrade = await Grade.findByIdAndUpdate(req.body.gradeID, { grade: req.body.grade }, { new: true });
+        // console.log(updateGrade)
+        res.status(200).redirect(`/student/64045fae22693e42fe681205`);
     } catch(err) { console.log(err) }
 });
 

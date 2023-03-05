@@ -1,1 +1,44 @@
-<h1>Home</h1>
+<div class="d-flex justify-content-end">
+    <button class="btn"><i class="bi bi-info-circle fs-1"></i></button>
+</div>
+<div class="d-grid justify-content-center gap-5 mb-5">
+    <img src="icct-logo.jpg" class="logo">
+    <form class="d-grid gap-2 loginForm">
+        <div class="form-floating">
+            <input type="text" class="form-control" id="registerUsername" placeholder="username">
+            <label for="registerUsername">Username</label>
+        </div>
+        <div class="form-floating">
+            <input type="password" class="form-control" id="registerPassword" placeholder="password">
+            <label for="registerPassword">Password</label>
+        </div>
+        <button type="submit" class="btn btn-primary">Login</button>
+        <div class="d-flex align-items-center">
+            <span>Not registered?</span>
+            <button type="button" class="btn fw-bold text-primary showRegisterFormBtn">Register</button>
+        </div>
+    </form>
+    <form class="d-grid d-none gap-2 registerForm">
+        <div class="form-floating">
+            <input type="text" class="form-control" id="loginUsername" placeholder="username">
+            <label for="loginUsername">Username</label>
+        </div>
+        <div class="form-floating">
+            <input type="password" class="form-control" id="loginPassword" placeholder="password">
+            <label for="loginPassword">Password</label>
+        </div>
+        <div class="form-floating">
+            <input type="email" class="form-control" id="loginEmail" placeholder="email">
+            <label for="loginEmail">Email</label>
+        </div>
+        <div class="form-floating">
+            <input type="text" class="form-control" id="studentNum" placeholder="studentnum">
+            <label for="studentNum">Student No.</label>
+        </div>
+        <button type="submit" class="btn btn-primary">Sign Up</button>
+        <div class="d-flex align-items-center">
+            <span>Already registered?</span>
+            <button type="button" class="btn fw-bold text-primary showLoginFormBtn">Login</button>
+        </div>
+    </form>
+</div>
