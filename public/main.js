@@ -4,15 +4,15 @@ if (location.pathname === "/") {
     const showRegisterFormBtn = document.querySelector(".showRegisterFormBtn");
     const showLoginFormBtn = document.querySelector(".showLoginFormBtn");
 
-    showRegisterFormBtn.addEventListener("click", () => {
-        loginForm.classList.add("d-none");
-        registerForm.classList.remove("d-none");
-    });
+    // showRegisterFormBtn.addEventListener("click", () => {
+    //     loginForm.classList.add("d-none");
+    //     registerForm.classList.remove("d-none");
+    // });
 
-    showLoginFormBtn.addEventListener("click", () => {
-        registerForm.classList.add("d-none");
-        loginForm.classList.remove("d-none");
-    })
+    // showLoginFormBtn.addEventListener("click", () => {
+    //     registerForm.classList.add("d-none");
+    //     loginForm.classList.remove("d-none");
+    // })
 }
 
 if (location.pathname === "/dashboard") {

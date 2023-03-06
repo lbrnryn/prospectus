@@ -5,6 +5,7 @@
     { course: "bscs", year: "1st", trimester: "1st", code: "sofapp" },
     { course: "bscs", year: "1st", trimester: "1st", code: "phye001" },
     { course: "bscs", year: "1st", trimester: "1st", code: "nstp-1" },
+    { course: "bscs", year: "1st", trimester: "1st", code: "precal" },
     { course: "bscs", year: "1st", trimester: "2nd", code: "val01" },
     { course: "bscs", year: "1st", trimester: "2nd", code: "sts01" },
     { course: "bscs", year: "1st", trimester: "2nd", code: "ss01" },

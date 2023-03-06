@@ -1,9 +1,50 @@
 <div class="d-flex justify-content-end">
-    <button class="btn"><i class="bi bi-info-circle fs-1"></i></button>
+    {{!-- <button class="btn"><i class="bi bi-info-circle fs-1"></i></button> --}}
+    <button type="button" class="btn" data-bs-toggle="modal" data-bs-target="#infoModal"><i class="bi bi-info-circle fs-1"></i></button>
+
+    <div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <div>
+                        <h5>Get in Touch</h5>
+                        <p class="small">If you are interested in finding out more about how we can help our organization, please fill out the form below. You can visit us at anytime between Monday to Saturday (7am to 5pm)</p>
+                    </div>
+                    <div>
+                        <p class="small"><i class="bi bi-geo-alt-fill me-2"></i>ICCT Building. V.V. Soliven Ave. II, Cainta, Rizal</p>
+                    </div>
+                    <div>
+                        <p class="small"><i class="bi bi-telephone-fill me-2"></i>(02)7.955.6284 / (02)8.249.1178</p>
+                    </div>
+                    <div>
+                        <p class="small"><i class="bi bi-phone-fill me-2"></i>0932.872.4228 / 0947.895.4228 / 0917.814.4228</p>
+                    </div>
+                    <div>
+                        <p class="small"><i class="bi bi-envelope-fill me-2"></i>info@icct.edu.ph</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 <div class="d-grid justify-content-center gap-5 mb-5">
     <img src="icct-logo.jpg" class="logo">
-    <form class="d-grid gap-2 loginForm">
+    <form action="/login" class="d-grid gap-2 loginForm" method="post">
+        <div class="form-floating">
+            <input type="text" class="form-control" id="loginUsername" placeholder="username" name="username">
+            <label for="loginUsername">Username</label>
+        </div>
+        <div class="form-floating">
+            <input type="password" class="form-control" id="loginPassword" placeholder="password" name="password">
+            <label for="loginPassword">Password</label>
+        </div>
+        <button type="submit" class="btn btn-primary">Login</button>
+        {{!-- <div class="d-flex align-items-center">
+            <span>Not registered?</span>
+            <button type="button" class="btn fw-bold text-primary showRegisterFormBtn">Register</button>
+        </div> --}}
+    </form>
+    {{!-- <form class="d-grid d-none gap-2 registerForm">
         <div class="form-floating">
             <input type="text" class="form-control" id="registerUsername" placeholder="username">
             <label for="registerUsername">Username</label>
@@ -12,24 +53,9 @@
             <input type="password" class="form-control" id="registerPassword" placeholder="password">
             <label for="registerPassword">Password</label>
         </div>
-        <button type="submit" class="btn btn-primary">Login</button>
-        <div class="d-flex align-items-center">
-            <span>Not registered?</span>
-            <button type="button" class="btn fw-bold text-primary showRegisterFormBtn">Register</button>
-        </div>
-    </form>
-    <form class="d-grid d-none gap-2 registerForm">
         <div class="form-floating">
-            <input type="text" class="form-control" id="loginUsername" placeholder="username">
-            <label for="loginUsername">Username</label>
-        </div>
-        <div class="form-floating">
-            <input type="password" class="form-control" id="loginPassword" placeholder="password">
-            <label for="loginPassword">Password</label>
-        </div>
-        <div class="form-floating">
-            <input type="email" class="form-control" id="loginEmail" placeholder="email">
-            <label for="loginEmail">Email</label>
+            <input type="email" class="form-control" id="registerEmail" placeholder="email">
+            <label for="registerEmail">Email</label>
         </div>
         <div class="form-floating">
             <input type="text" class="form-control" id="studentNum" placeholder="studentnum">
@@ -40,5 +66,5 @@
             <span>Already registered?</span>
             <button type="button" class="btn fw-bold text-primary showLoginFormBtn">Login</button>
         </div>
-    </form>
+    </form> --}}
 </div>

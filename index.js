@@ -3,6 +3,9 @@ const { engine } = require("express-handlebars");
 const mongoose = require("mongoose");
 const path = require("path");
 const methodOverride = require("method-override");
+const passport = require("passport");
+require("./passport")(passport);
+const session = require("express-session");
 
 (async function main() {
     try {
@@ -28,17 +31,28 @@ app.set("json spaces", 2);
 app.use(express.static(path.join(__dirname, "public")));
 app.use("/student", express.static(path.join(__dirname, "public")));
 app.use(methodOverride("_method"));
+app.use(session({
+    secret: "secret",
+    resave: false,
+    saveUninitialized: true
+}));
+app.use(passport.initialize());
+app.use(passport.session());
+
+
 
 // GET - / - Home Route
-app.get("/", (req, res) => {
+// app.get("/", (req, res) => {
+app.get("/", async (req, res) => {
     res.render("home", {
         title: "Home"
     });
 })
 
-app.post("/login", (req, res) => {
-    res.json(req.body)
-});
+app.post('/login', passport.authenticate('local', {
+    successRedirect: "/dashboard", 
+    failureRedirect: "/" 
+}));
 
 app.post("/register", async (req, res) => {
     try {
@@ -50,23 +64,27 @@ app.post("/register", async (req, res) => {
     } catch(err) { console.log(err) }
 });
 
-app.get("/api/users", async (req, res) => {
-    try {
-        // const users = await User.find().populate("course").populate("subjects");
-        const users = await User.find().populate("course");
-        res.json(users);
-    } catch(err) { console.log(err) }
-})
+app.post('/logout', function(req, res, next) {
+    req.logout(function(err) {
+      if (err) { return next(err); }
+      res.redirect('/');
+    });
+  });
 
 // GET - /dashboard - Dashboard Page (Admin/Student)
-app.get("/dashboard", async  (req, res) => {
-    const students = await User.find({ role: "student" }).lean();
-    // console.log(students)
-
-    res.render("admin/dashboard", {
-        title: "Admin - Dashboard",
-        students
-    })
+app.get("/dashboard", async (req, res) => {
+    // console.log(req.user)
+    if (req.user === undefined) {
+        res.redirect("/");
+    } else if (req.user.role === "admin") {
+        const students = await User.find({ role: "student" }).lean();
+        res.render("admin/dashboard", {
+            title: "Admin - Dashboard",
+            students
+        })
+    } else {
+        res.render("student/dashboard", { title: "Student - Dashboard" });
+    }
 });
 
 app.get("/student/:id", async (req, res) => {
@@ -95,13 +113,24 @@ app.get("/student/:id", async (req, res) => {
                     })
                 });
                 // console.log(subjects)
-                // <!-- <input type="text" class="border-0 border-bottom" id="${subject.code}" style="width: 2rem;" name="grade" value="${subject.gradeDetail.grade ? subject.gradeDetail.grade: ""}" ${subject.gradeDetail.grade ? "disabled=true": ""}> -->
 
                 const filteredSubjects = subjects.filter(subject => subject.year === "1st" && subject.trimester === "1st");
 
                 const mapSubjects = filteredSubjects.map(subject => {
-                    return `
-                    <div class="col-6">
+                    const noGradeFormat = `
+                        <form action="/grade/subject/${subject._id}" class="d-flex justify-content-between align-items-center" method="post">
+                            <label for="${subject.code}" class="text-uppercase">${subject.code}</label>
+                            <div>
+                                <input type="hidden" value="${student._id}" name="studentID">
+                                <input type="hidden" value="${subject.gradeID}" name="gradeID">
+                                <!-- <input type="text" class="border-0 border-bottom" id="${subject.code}" style="width: 2rem;" name="grade" value="${subject.grade ? subject.grade: ""}" ${subject.grade ? "disabled=true": ""}> -->
+                                <input type="text" class="border-0 border-bottom" id="${subject.code}" style="width: 2rem;" name="grade" required>
+                                <button type="submit" class="btn border-0 p-0"><i class="bi bi-caret-right-fill"></i></button>
+                            </div>
+                        </form>
+                    `;
+
+                    const gradeFormat = `
                         <form action="/grade/subject/${subject._id}" class="d-flex justify-content-between align-items-center" method="post">
                             <label for="${subject.code}" class="text-uppercase">${subject.code}</label>
                             <div>
@@ -114,6 +143,11 @@ app.get("/student/:id", async (req, res) => {
                                 <button type="button" class="btn border-0 p-0 d-none editGradeCancelBtn"><i class="bi bi-x"></i></button>
                             </div>
                         </form>
+                    `;
+
+                    return `
+                    <div class="col-6">
+                        ${subject.grade ? gradeFormat: noGradeFormat}
                     </div>
                     `
                 });
@@ -124,8 +158,20 @@ app.get("/student/:id", async (req, res) => {
                 const filteredSubjects = subjects.filter(subject => subject.year === "1st" && subject.trimester === "2nd");
 
                 const mapSubjects = filteredSubjects.map(subject => {
-                    return `
-                    <div class="col-6">
+                    const noGradeFormat = `
+                        <form action="/grade/subject/${subject._id}" class="d-flex justify-content-between align-items-center" method="post">
+                            <label for="${subject.code}" class="text-uppercase">${subject.code}</label>
+                            <div>
+                                <input type="hidden" value="${student._id}" name="studentID">
+                                <input type="hidden" value="${subject.gradeID}" name="gradeID">
+                                <!-- <input type="text" class="border-0 border-bottom" id="${subject.code}" style="width: 2rem;" name="grade" value="${subject.grade ? subject.grade: ""}" ${subject.grade ? "disabled=true": ""}> -->
+                                <input type="text" class="border-0 border-bottom" id="${subject.code}" style="width: 2rem;" name="grade" required>
+                                <button type="submit" class="btn border-0 p-0"><i class="bi bi-caret-right-fill"></i></button>
+                            </div>
+                        </form>
+                    `;
+
+                    const gradeFormat = `
                         <form action="/grade/subject/${subject._id}" class="d-flex justify-content-between align-items-center" method="post">
                             <label for="${subject.code}" class="text-uppercase">${subject.code}</label>
                             <div>
@@ -138,6 +184,11 @@ app.get("/student/:id", async (req, res) => {
                                 <button type="button" class="btn border-0 p-0 d-none editGradeCancelBtn"><i class="bi bi-x"></i></button>
                             </div>
                         </form>
+                    `;
+
+                    return `
+                    <div class="col-6">
+                        ${subject.grade ? gradeFormat: noGradeFormat}
                     </div>
                     `
                 });
@@ -148,8 +199,20 @@ app.get("/student/:id", async (req, res) => {
                 const filteredSubjects = subjects.filter(subject => subject.year === "1st" && subject.trimester === "3rd");
 
                 const mapSubjects = filteredSubjects.map(subject => {
-                    return `
-                    <div class="col-6">
+                    const noGradeFormat = `
+                        <form action="/grade/subject/${subject._id}" class="d-flex justify-content-between align-items-center" method="post">
+                            <label for="${subject.code}" class="text-uppercase">${subject.code}</label>
+                            <div>
+                                <input type="hidden" value="${student._id}" name="studentID">
+                                <input type="hidden" value="${subject.gradeID}" name="gradeID">
+                                <!-- <input type="text" class="border-0 border-bottom" id="${subject.code}" style="width: 2rem;" name="grade" value="${subject.grade ? subject.grade: ""}" ${subject.grade ? "disabled=true": ""}> -->
+                                <input type="text" class="border-0 border-bottom" id="${subject.code}" style="width: 2rem;" name="grade" required>
+                                <button type="submit" class="btn border-0 p-0"><i class="bi bi-caret-right-fill"></i></button>
+                            </div>
+                        </form>
+                    `;
+
+                    const gradeFormat = `
                         <form action="/grade/subject/${subject._id}" class="d-flex justify-content-between align-items-center" method="post">
                             <label for="${subject.code}" class="text-uppercase">${subject.code}</label>
                             <div>
@@ -162,6 +225,11 @@ app.get("/student/:id", async (req, res) => {
                                 <button type="button" class="btn border-0 p-0 d-none editGradeCancelBtn"><i class="bi bi-x"></i></button>
                             </div>
                         </form>
+                    `;
+
+                    return `
+                    <div class="col-6">
+                        ${subject.grade ? gradeFormat: noGradeFormat}
                     </div>
                     `
                 });
@@ -172,8 +240,20 @@ app.get("/student/:id", async (req, res) => {
                 const filteredSubjects = subjects.filter(subject => subject.year === "2nd" && subject.trimester === "1st");
 
                 const mapSubjects = filteredSubjects.map(subject => {
-                    return `
-                    <div class="col-6">
+                    const noGradeFormat = `
+                        <form action="/grade/subject/${subject._id}" class="d-flex justify-content-between align-items-center" method="post">
+                            <label for="${subject.code}" class="text-uppercase">${subject.code}</label>
+                            <div>
+                                <input type="hidden" value="${student._id}" name="studentID">
+                                <input type="hidden" value="${subject.gradeID}" name="gradeID">
+                                <!-- <input type="text" class="border-0 border-bottom" id="${subject.code}" style="width: 2rem;" name="grade" value="${subject.grade ? subject.grade: ""}" ${subject.grade ? "disabled=true": ""}> -->
+                                <input type="text" class="border-0 border-bottom" id="${subject.code}" style="width: 2rem;" name="grade" required>
+                                <button type="submit" class="btn border-0 p-0"><i class="bi bi-caret-right-fill"></i></button>
+                            </div>
+                        </form>
+                    `;
+
+                    const gradeFormat = `
                         <form action="/grade/subject/${subject._id}" class="d-flex justify-content-between align-items-center" method="post">
                             <label for="${subject.code}" class="text-uppercase">${subject.code}</label>
                             <div>
@@ -186,6 +266,11 @@ app.get("/student/:id", async (req, res) => {
                                 <button type="button" class="btn border-0 p-0 d-none editGradeCancelBtn"><i class="bi bi-x"></i></button>
                             </div>
                         </form>
+                    `;
+
+                    return `
+                    <div class="col-6">
+                        ${subject.grade ? gradeFormat: noGradeFormat}
                     </div>
                     `
                 });
@@ -196,8 +281,20 @@ app.get("/student/:id", async (req, res) => {
                 const filteredSubjects = subjects.filter(subject => subject.year === "2nd" && subject.trimester === "2nd");
 
                 const mapSubjects = filteredSubjects.map(subject => {
-                    return `
-                    <div class="col-6">
+                    const noGradeFormat = `
+                        <form action="/grade/subject/${subject._id}" class="d-flex justify-content-between align-items-center" method="post">
+                            <label for="${subject.code}" class="text-uppercase">${subject.code}</label>
+                            <div>
+                                <input type="hidden" value="${student._id}" name="studentID">
+                                <input type="hidden" value="${subject.gradeID}" name="gradeID">
+                                <!-- <input type="text" class="border-0 border-bottom" id="${subject.code}" style="width: 2rem;" name="grade" value="${subject.grade ? subject.grade: ""}" ${subject.grade ? "disabled=true": ""}> -->
+                                <input type="text" class="border-0 border-bottom" id="${subject.code}" style="width: 2rem;" name="grade" required>
+                                <button type="submit" class="btn border-0 p-0"><i class="bi bi-caret-right-fill"></i></button>
+                            </div>
+                        </form>
+                    `;
+
+                    const gradeFormat = `
                         <form action="/grade/subject/${subject._id}" class="d-flex justify-content-between align-items-center" method="post">
                             <label for="${subject.code}" class="text-uppercase">${subject.code}</label>
                             <div>
@@ -210,6 +307,11 @@ app.get("/student/:id", async (req, res) => {
                                 <button type="button" class="btn border-0 p-0 d-none editGradeCancelBtn"><i class="bi bi-x"></i></button>
                             </div>
                         </form>
+                    `;
+
+                    return `
+                    <div class="col-6">
+                        ${subject.grade ? gradeFormat: noGradeFormat}
                     </div>
                     `
                 });
@@ -220,8 +322,20 @@ app.get("/student/:id", async (req, res) => {
                 const filteredSubjects = subjects.filter(subject => subject.year === "2nd" && subject.trimester === "3rd");
 
                 const mapSubjects = filteredSubjects.map(subject => {
-                    return `
-                    <div class="col-6">
+                    const noGradeFormat = `
+                        <form action="/grade/subject/${subject._id}" class="d-flex justify-content-between align-items-center" method="post">
+                            <label for="${subject.code}" class="text-uppercase">${subject.code}</label>
+                            <div>
+                                <input type="hidden" value="${student._id}" name="studentID">
+                                <input type="hidden" value="${subject.gradeID}" name="gradeID">
+                                <!-- <input type="text" class="border-0 border-bottom" id="${subject.code}" style="width: 2rem;" name="grade" value="${subject.grade ? subject.grade: ""}" ${subject.grade ? "disabled=true": ""}> -->
+                                <input type="text" class="border-0 border-bottom" id="${subject.code}" style="width: 2rem;" name="grade" required>
+                                <button type="submit" class="btn border-0 p-0"><i class="bi bi-caret-right-fill"></i></button>
+                            </div>
+                        </form>
+                    `;
+
+                    const gradeFormat = `
                         <form action="/grade/subject/${subject._id}" class="d-flex justify-content-between align-items-center" method="post">
                             <label for="${subject.code}" class="text-uppercase">${subject.code}</label>
                             <div>
@@ -234,6 +348,11 @@ app.get("/student/:id", async (req, res) => {
                                 <button type="button" class="btn border-0 p-0 d-none editGradeCancelBtn"><i class="bi bi-x"></i></button>
                             </div>
                         </form>
+                    `;
+
+                    return `
+                    <div class="col-6">
+                        ${subject.grade ? gradeFormat: noGradeFormat}
                     </div>
                     `
                 });
@@ -244,8 +363,20 @@ app.get("/student/:id", async (req, res) => {
                 const filteredSubjects = subjects.filter(subject => subject.year === "3rd" && subject.trimester === "1st");
 
                 const mapSubjects = filteredSubjects.map(subject => {
-                    return `
-                    <div class="col-6">
+                    const noGradeFormat = `
+                        <form action="/grade/subject/${subject._id}" class="d-flex justify-content-between align-items-center" method="post">
+                            <label for="${subject.code}" class="text-uppercase">${subject.code}</label>
+                            <div>
+                                <input type="hidden" value="${student._id}" name="studentID">
+                                <input type="hidden" value="${subject.gradeID}" name="gradeID">
+                                <!-- <input type="text" class="border-0 border-bottom" id="${subject.code}" style="width: 2rem;" name="grade" value="${subject.grade ? subject.grade: ""}" ${subject.grade ? "disabled=true": ""}> -->
+                                <input type="text" class="border-0 border-bottom" id="${subject.code}" style="width: 2rem;" name="grade" required>
+                                <button type="submit" class="btn border-0 p-0"><i class="bi bi-caret-right-fill"></i></button>
+                            </div>
+                        </form>
+                    `;
+
+                    const gradeFormat = `
                         <form action="/grade/subject/${subject._id}" class="d-flex justify-content-between align-items-center" method="post">
                             <label for="${subject.code}" class="text-uppercase">${subject.code}</label>
                             <div>
@@ -258,6 +389,11 @@ app.get("/student/:id", async (req, res) => {
                                 <button type="button" class="btn border-0 p-0 d-none editGradeCancelBtn"><i class="bi bi-x"></i></button>
                             </div>
                         </form>
+                    `;
+
+                    return `
+                    <div class="col-6">
+                        ${subject.grade ? gradeFormat: noGradeFormat}
                     </div>
                     `
                 });
@@ -268,8 +404,20 @@ app.get("/student/:id", async (req, res) => {
                 const filteredSubjects = subjects.filter(subject => subject.year === "3rd" && subject.trimester === "2nd");
 
                 const mapSubjects = filteredSubjects.map(subject => {
-                    return `
-                    <div class="col-6">
+                    const noGradeFormat = `
+                        <form action="/grade/subject/${subject._id}" class="d-flex justify-content-between align-items-center" method="post">
+                            <label for="${subject.code}" class="text-uppercase">${subject.code}</label>
+                            <div>
+                                <input type="hidden" value="${student._id}" name="studentID">
+                                <input type="hidden" value="${subject.gradeID}" name="gradeID">
+                                <!-- <input type="text" class="border-0 border-bottom" id="${subject.code}" style="width: 2rem;" name="grade" value="${subject.grade ? subject.grade: ""}" ${subject.grade ? "disabled=true": ""}> -->
+                                <input type="text" class="border-0 border-bottom" id="${subject.code}" style="width: 2rem;" name="grade" required>
+                                <button type="submit" class="btn border-0 p-0"><i class="bi bi-caret-right-fill"></i></button>
+                            </div>
+                        </form>
+                    `;
+
+                    const gradeFormat = `
                         <form action="/grade/subject/${subject._id}" class="d-flex justify-content-between align-items-center" method="post">
                             <label for="${subject.code}" class="text-uppercase">${subject.code}</label>
                             <div>
@@ -282,6 +430,11 @@ app.get("/student/:id", async (req, res) => {
                                 <button type="button" class="btn border-0 p-0 d-none editGradeCancelBtn"><i class="bi bi-x"></i></button>
                             </div>
                         </form>
+                    `;
+
+                    return `
+                    <div class="col-6">
+                        ${subject.grade ? gradeFormat: noGradeFormat}
                     </div>
                     `
                 });
@@ -292,8 +445,20 @@ app.get("/student/:id", async (req, res) => {
                 const filteredSubjects = subjects.filter(subject => subject.year === "3rd" && subject.trimester === "3rd");
 
                 const mapSubjects = filteredSubjects.map(subject => {
-                    return `
-                    <div class="col-6">
+                    const noGradeFormat = `
+                        <form action="/grade/subject/${subject._id}" class="d-flex justify-content-between align-items-center" method="post">
+                            <label for="${subject.code}" class="text-uppercase">${subject.code}</label>
+                            <div>
+                                <input type="hidden" value="${student._id}" name="studentID">
+                                <input type="hidden" value="${subject.gradeID}" name="gradeID">
+                                <!-- <input type="text" class="border-0 border-bottom" id="${subject.code}" style="width: 2rem;" name="grade" value="${subject.grade ? subject.grade: ""}" ${subject.grade ? "disabled=true": ""}> -->
+                                <input type="text" class="border-0 border-bottom" id="${subject.code}" style="width: 2rem;" name="grade" required>
+                                <button type="submit" class="btn border-0 p-0"><i class="bi bi-caret-right-fill"></i></button>
+                            </div>
+                        </form>
+                    `;
+
+                    const gradeFormat = `
                         <form action="/grade/subject/${subject._id}" class="d-flex justify-content-between align-items-center" method="post">
                             <label for="${subject.code}" class="text-uppercase">${subject.code}</label>
                             <div>
@@ -306,6 +471,11 @@ app.get("/student/:id", async (req, res) => {
                                 <button type="button" class="btn border-0 p-0 d-none editGradeCancelBtn"><i class="bi bi-x"></i></button>
                             </div>
                         </form>
+                    `;
+
+                    return `
+                    <div class="col-6">
+                        ${subject.grade ? gradeFormat: noGradeFormat}
                     </div>
                     `
                 });
@@ -316,8 +486,20 @@ app.get("/student/:id", async (req, res) => {
                 const filteredSubjects = subjects.filter(subject => subject.year === "4th" && subject.trimester === "1st");
 
                 const mapSubjects = filteredSubjects.map(subject => {
-                    return `
-                    <div class="col-6">
+                    const noGradeFormat = `
+                        <form action="/grade/subject/${subject._id}" class="d-flex justify-content-between align-items-center" method="post">
+                            <label for="${subject.code}" class="text-uppercase">${subject.code}</label>
+                            <div>
+                                <input type="hidden" value="${student._id}" name="studentID">
+                                <input type="hidden" value="${subject.gradeID}" name="gradeID">
+                                <!-- <input type="text" class="border-0 border-bottom" id="${subject.code}" style="width: 2rem;" name="grade" value="${subject.grade ? subject.grade: ""}" ${subject.grade ? "disabled=true": ""}> -->
+                                <input type="text" class="border-0 border-bottom" id="${subject.code}" style="width: 2rem;" name="grade" required>
+                                <button type="submit" class="btn border-0 p-0"><i class="bi bi-caret-right-fill"></i></button>
+                            </div>
+                        </form>
+                    `;
+
+                    const gradeFormat = `
                         <form action="/grade/subject/${subject._id}" class="d-flex justify-content-between align-items-center" method="post">
                             <label for="${subject.code}" class="text-uppercase">${subject.code}</label>
                             <div>
@@ -330,6 +512,11 @@ app.get("/student/:id", async (req, res) => {
                                 <button type="button" class="btn border-0 p-0 d-none editGradeCancelBtn"><i class="bi bi-x"></i></button>
                             </div>
                         </form>
+                    `;
+
+                    return `
+                    <div class="col-6">
+                        ${subject.grade ? gradeFormat: noGradeFormat}
                     </div>
                     `
                 });
@@ -348,7 +535,7 @@ app.post("/grade/subject/:id", async (req, res) => {
             grade: req.body.grade
         });
         // res.json(grade);
-        res.status(201).redirect(`/student/64045fae22693e42fe681205`);
+        res.status(201).redirect(`/student/${req.body.studentID}`);
     } catch(err) { console.log(err) }
 });
 
@@ -356,7 +543,7 @@ app.put("/grade/subject/:id", async (req, res) => {
     try {
         const updateGrade = await Grade.findByIdAndUpdate(req.body.gradeID, { grade: req.body.grade }, { new: true });
         // console.log(updateGrade)
-        res.status(200).redirect(`/student/64045fae22693e42fe681205`);
+        res.status(200).redirect(`/student/${req.body.studentID}`);
     } catch(err) { console.log(err) }
 });
 
